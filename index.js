@@ -29,6 +29,7 @@ async function run() {
     await client.connect();
     const menuCollection = client.db("bistro_boss").collection("menu");
     const reviewsCollection = client.db("bistro_boss").collection("reviews");
+    const cartsCollection = client.db("bistro_boss").collection("carts");
 
     app.get('/menu', async (req, res) => {
       const result = await menuCollection.find().toArray();
@@ -61,3 +62,27 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+// cart collection APIs
+
+app.post('/carts', async (req, res) => {
+  const item = req.body;
+  console.log(item);
+  const result = await cartsCollection.insertOne(item);
+  res.send(result);
+});
+
+
+/*
+*-------------------------
+NAMING CONVENTION
+*-------------------------
+app.get('/users') => usersCollection.find()
+app.get('/users/:id') => usersCollection.findOne({ _id: new ObjectId(id) })
+app.post('/users') => usersCollection.insertOne()
+app.put('/users/:id') => usersCollection.replaceOne({ _id: new ObjectId(id) }, updatedData)
+app.patch('/users/:id') => usersCollection.updateOne({ _id: new ObjectId(id) }, { $set: updatedData })
+app.delete('/users/:id') => usersCollection.deleteOne({ _id: new ObjectId(id) })
+*/
+
+
