@@ -42,6 +42,13 @@ async function run() {
       res.send(result);
     });
 
+    app.post('/carts', async (req, res) => {
+      const item = req.body;
+      console.log(item);
+      const result = await cartsCollection.insertOne(item);
+      res.send(result);
+    });
+
 
 
     await client.db("bistro_boss").command({ ping: 1 });
@@ -62,16 +69,6 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-// cart collection APIs
-
-app.post('/carts', async (req, res) => {
-  const item = req.body;
-  console.log(item);
-  const result = await cartsCollection.insertOne(item);
-  res.send(result);
-});
-
 
 /*
 *-------------------------
