@@ -6,7 +6,10 @@ const port = process.env.PORT || 3000;
 const cors = require('cors');
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 
 
@@ -44,7 +47,6 @@ async function run() {
 
     app.post('/carts', async (req, res) => {
       const item = req.body;
-      console.log(item);
       const result = await cartsCollection.insertOne(item);
       res.send(result);
     });
