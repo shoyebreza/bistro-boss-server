@@ -13,7 +13,7 @@ app.use(cors({
 app.use(express.json());
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.zavbous.mongodb.net/?appName=Cluster0`;
 
@@ -58,6 +58,13 @@ async function run() {
     app.post('/carts', async (req, res) => {
       const item = req.body;
       const result = await cartsCollection.insertOne(item);
+      res.send(result);
+    });
+
+    app.delete('/carts/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartsCollection.deleteOne(query);
       res.send(result);
     });
 
