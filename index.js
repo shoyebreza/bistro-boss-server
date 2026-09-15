@@ -38,6 +38,11 @@ async function run() {
 
     // users collection api
 
+    app.get('/users', async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    });
+
     app.post('/users', async (req, res) => {
       const user = req.body;
       // Check if the user already exists based on email
