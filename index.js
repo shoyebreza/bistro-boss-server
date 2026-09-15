@@ -40,9 +40,16 @@ async function run() {
 
     app.post('/users', async (req, res) => {
       const user = req.body;
+      // Check if the user already exists based on email
+      const query = { email: user.email };
+      const existingUser = await userCollection.findOne(query);
+      if (existingUser) {
+        return res.status(400).send({ message: 'User already exists' });
+      }
       const result = await userCollection.insertOne(user);
       res.send(result);
     });
+
 
     app.get('/menu', async (req, res) => {
       const result = await menuCollection.find().toArray();
@@ -63,7 +70,7 @@ async function run() {
       const result = await cartsCollection.find(query).toArray();
       res.send(result);
     });
-    
+
 
     app.post('/carts', async (req, res) => {
       const item = req.body;
