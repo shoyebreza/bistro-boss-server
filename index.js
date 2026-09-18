@@ -37,6 +37,32 @@ async function run() {
     const cartsCollection = client.db("bistro_boss").collection("carts");
 
 
+    // jwt related api
+
+    app.post('/jwt', async(req, res) =>{
+      const user = req.body;
+      const token = jwt.sign(req.body, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+      res.send({token});
+    });
+
+    // middleware to verify jwt
+    const verifyToken = (req, res, next) => {
+      const authorization = req.headers.authorization;
+      if (!authorization) {
+        return res.status(401).send({ message: 'Unauthorized' });
+      }
+      const token = authorization.split(' ')[1];
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+          return res.status(401).send({ message: 'Unauthorized' });
+        }
+        req.decoded = decoded;
+        next();
+      });
+    };
+    
+
+
     // users collection api
 
     app.get('/users', async (req, res) => {
