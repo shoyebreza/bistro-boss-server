@@ -84,7 +84,17 @@ async function run() {
       res.send({ isAdmin });
     });
 
-    app.post('/users', async (req, res) => {
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.decoded.email;
+      const query = { email: email };
+      const user = await userCollection.findOne(query);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).send({ message: 'Forbidden' });
+      }
+      next();
+    };
+
+    app.post('/users', verifyToken, verifyAdmin, async (req, res) => {
       const user = req.body;
       // Check if the user already exists based on email
       const query = { email: user.email };
@@ -96,7 +106,7 @@ async function run() {
       res.send(result);
     });
 
-    app.patch('/users/admin/:id', verifyToken, async (req, res) => {
+    app.patch('/users/admin/:id', verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updateDoc = {
@@ -108,7 +118,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete('/users/:id', verifyToken, async (req, res) => {
+    app.delete('/users/:id', verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.deleteOne(query);
