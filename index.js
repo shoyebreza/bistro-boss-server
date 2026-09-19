@@ -94,13 +94,17 @@ async function run() {
       next();
     };
 
-    app.post('/users', verifyToken, verifyAdmin, async (req, res) => {
+    app.post('/users', verifyToken, async (req, res) => {
       const user = req.body;
+      if (req.decoded.email !== user.email) {
+        return res.status(403).send({ message: 'Forbidden' });
+      }
+
       // Check if the user already exists based on email
       const query = { email: user.email };
       const existingUser = await userCollection.findOne(query);
       if (existingUser) {
-        return res.status(400).send({ message: 'User already exists' });
+        return res.send({ message: 'User already exists' });
       }
       const result = await userCollection.insertOne(user);
       res.send(result);
