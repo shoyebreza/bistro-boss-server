@@ -65,9 +65,23 @@ async function run() {
 
     // users collection api
 
-    app.get('/users', async (req, res) => {
+    app.get('/users', verifyToken, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
+    });
+
+    app.get('/users/admin/:email', verifyToken, async (req, res) => {
+      const email = req.params.email;
+      if (req.decoded.email !== email) {
+        return res.status(403).send({ message: 'Forbidden' });
+      }
+      const query = { email: email };
+      const result = await userCollection.findOne(query);
+      let isAdmin = false;
+      if (result?.role === 'admin') {
+        isAdmin = true;
+      }
+      res.send({ isAdmin });
     });
 
     app.post('/users', async (req, res) => {
@@ -82,7 +96,7 @@ async function run() {
       res.send(result);
     });
 
-    app.patch('/users/admin/:id', async (req, res) => {
+    app.patch('/users/admin/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updateDoc = {
@@ -94,7 +108,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete('/users/:id', async (req, res) => {
+    app.delete('/users/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.deleteOne(query);
@@ -114,7 +128,7 @@ async function run() {
 
     // cart collection api
 
-    app.get('/carts', async (req, res) => {
+    app.get('/carts', verifyToken, async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
       const result = await cartsCollection.find(query).toArray();
@@ -122,7 +136,8 @@ async function run() {
     });
 
 
-    app.post('/carts', async (req, res) => {
+
+    app.post('/carts', verifyToken, async (req, res) => {
       const item = req.body;
       const result = await cartsCollection.insertOne(item);
       res.send(result);
