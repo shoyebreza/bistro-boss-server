@@ -36,6 +36,7 @@ async function run() {
     const menuCollection = client.db("bistro_boss").collection("menu");
     const reviewsCollection = client.db("bistro_boss").collection("reviews");
     const cartsCollection = client.db("bistro_boss").collection("carts");
+    const paymentsCollection = client.db("bistro_boss").collection("payments");
 
 
     // jwt related api
@@ -212,6 +213,23 @@ async function run() {
         payment_method_types: ['card'],
       });
       res.send({ clientSecret: paymentIntent.client_secret });
+    });
+
+    app.post('/payments', verifyToken, async (req, res) => {
+      const payment = req.body;
+      const result = await paymentsCollection.insertOne(payment);
+      // Also remove the items from the cart
+      const query = { _id: 
+        { $in: payment.cartIds.map(id => new ObjectId(id)) 
+
+        } 
+      };
+
+      const deleteResult = await cartsCollection.deleteMany(query);
+      console.log(deleteResult);
+
+      res.send({ result, deleteResult });
+      
     });
 
 
