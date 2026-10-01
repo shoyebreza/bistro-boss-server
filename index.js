@@ -239,6 +239,10 @@ async function run() {
       const deleteResult = await cartsCollection.deleteMany(query);
       console.log(deleteResult);
 
+      // send email at this point (about the payment confirmation)
+
+
+
       res.send({ result, deleteResult });
       
     });
